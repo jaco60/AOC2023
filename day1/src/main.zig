@@ -45,7 +45,7 @@ fn keepDigits(line: String, alloc: std.mem.Allocator, in_part2: bool) !u32 {
             for (numbers) |number| {
                 if (number.len + i <= line.len) {
                     if (std.mem.eql(u8, line[i .. number.len + i], number)) {
-                        const n = translations.get(number) orelse '0';
+                        const n = translations.get(number) orelse unreachable;
                         try digits.append(n - '0');
                     }
                 }
