@@ -1,6 +1,11 @@
 const std = @import("std");
 const String = []const u8;
 
+// Hack because ComptimeStringMap doesn't provides a keyIterator like StringHashMap
+const numbers = [_]String{
+    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+};
+
 // Comptime translation table for part2
 const translations = std.ComptimeStringMap(u8, .{
     .{ "one", '1' },
@@ -30,11 +35,6 @@ fn keepDigits(line: String, alloc: std.mem.Allocator, in_part2: bool) !u32 {
     var digits = std.ArrayList(u32).init(alloc);
     defer digits.deinit();
 
-    // Hack because ComptimeStringMap doesn't provides a keyIterator like StringHashMap
-    const numbers = [_]String{
-        "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
-    };
-    
     var i: usize = 0;
     while (i < line.len) : (i += 1) {
         const char = line[i]; // Part1 + Part2
