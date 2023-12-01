@@ -17,13 +17,13 @@ const translations = std.ComptimeStringMap(u8, .{
 fn part(alloc: std.mem.Allocator, in_part2: bool) !u32 {
     const input = @embedFile("input.txt");
     var lines = std.mem.split(u8, input, "\n");
-    var somme: u32 = 0;
+    var sum: u32 = 0;
     while (lines.next()) |line| {
         if (line.len != 0) {
-            somme += try keepDigits(line, alloc, in_part2);
+            sum += try keepDigits(line, alloc, in_part2);
         }
     }
-    return somme;
+    return sum;
 }
 
 fn keepDigits(line: String, alloc: std.mem.Allocator, in_part2: bool) !u32 {
