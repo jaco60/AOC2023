@@ -45,7 +45,7 @@ fn part2(input: String) u32 {
         var last_val: u32 = 0;
 
         for (line, 0..) |char, i| {
-            if (std.ascii.isDigit(char)) {
+            if (isDigit(char)) {
                 if (first_i == null) {
                     first_i = i;
                     first_val = char - '0';
