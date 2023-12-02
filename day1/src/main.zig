@@ -1,63 +1,91 @@
 const std = @import("std");
 const String = []const u8;
+const print = std.debug.print;
+const tokenizeAny = std.mem.tokenizeAny;
+const indexOf = std.mem.indexOf;
+const isDigit = std.ascii.isDigit;
 
-// Hack because ComptimeStringMap doesn't provides a keyIterator like StringHashMap
 const numbers = [_]String{
     "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
 };
 
-// Comptime translation table for part2
-const translations = std.ComptimeStringMap(u8, .{
-    .{ "one", '1' },
-    .{ "two", '2' },
-    .{ "three", '3' },
-    .{ "four", '4' },
-    .{ "five", '5' },
-    .{ "six", '6' },
-    .{ "seven", '7' },
-    .{ "eight", '8' },
-    .{ "nine", '9' },
-});
+fn part1(input: String) u32 {
+    var lines = tokenizeAny(u8, input, "\r\n");
+    var result: u32 = 0;
 
-fn part(alloc: std.mem.Allocator, in_part2: bool) !u32 {
-    const input = @embedFile("input.txt");
-    var lines = std.mem.tokenizeAny(u8, input, "\r\n");
-    var sum: u32 = 0;
     while (lines.next()) |line| {
-        sum += try keepDigits(line, alloc, in_part2);
+        var first_i: ?usize = null;
+        var last_i: ?usize = null;
+        var first_val: u32 = undefined;
+        var last_val: u32 = undefined;
+
+        for (line, 0..) |char, i| {
+            if (isDigit(char)) {
+                if (first_i == null) {
+                    first_i = i;
+                    first_val = char - '0';
+                }
+                last_i = i;
+                last_val = char - '0';
+            }
+        }
+        result += first_val * 10 + last_val;
     }
-    return sum;
+    return result;
 }
 
-fn keepDigits(line: String, alloc: std.mem.Allocator, in_part2: bool) !u32 {
-    var digits = std.ArrayList(u32).init(alloc);
-    defer digits.deinit();
+fn part2(input: String) u32 {
+    var lines = tokenizeAny(u8, input, "\r\n");
+    var result: u32 = 0;
 
-    var i: usize = 0;
-    while (i < line.len) : (i += 1) {
-        const char = line[i]; // Part1 + Part2
-        if (std.ascii.isDigit(char)) {
-            try digits.append(char - '0');
+    while (lines.next()) |line| {
+        var first_i: ?usize = null;
+        var last_i: ?usize = null;
+        var first_val: u32 = 0;
+        var last_val: u32 = 0;
+
+        for (line, 0..) |char, i| {
+            if (std.ascii.isDigit(char)) {
+                if (first_i == null) {
+                    first_i = i;
+                    first_val = char - '0';
+                }
+                last_i = i;
+                last_val = char - '0';
+            }
         }
-        if (in_part2) { // <---- Only Part 2
-            for (numbers) |number| {
-                if (number.len + i <= line.len) {
-                    if (std.mem.eql(u8, line[i .. number.len + i], number)) {
-                        const n = translations.get(number) orelse unreachable;
-                        try digits.append(n - '0');
-                    }
+
+        for (numbers, 1..) |str, int| {
+            const pos = indexOf(u8, line, str);
+            if (pos) |i| {
+                if (first_i == null or i < first_i.?) {
+                    first_i = i;
+                    first_val = @intCast(int);
+                }
+
+                if (last_i == null or i > last_i.?) {
+                    last_i = i;
+                    last_val = @intCast(int);
                 }
             }
         }
+        result += first_val * 10 + last_val;
     }
-    return digits.items[0] * 10 + digits.getLast();
+    return result;
 }
 
 pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    const alloc = gpa.allocator();
-    defer _ = gpa.deinit();
+    const input = @embedFile("input.txt");
+    print("Part 1 : {d}\n", .{part1(input)});
+    print("Part 2 : {d}\n", .{part2(input)});
+}
 
-    std.debug.print("part1: {!}\n", .{part(alloc, false)}); // part 1
-    std.debug.print("part2 : {!}\n", .{part(alloc, true)}); // part 2
+test "part1" {
+    const sample = @embedFile("sample1.txt");
+    try std.testing.expectEqual(part1(sample), 142);
+}
+
+test "part2" {
+    const sample = @embedFile("sample2.txt");
+    try std.testing.expectEqual(part2(sample), 281);
 }
