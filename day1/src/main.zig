@@ -21,12 +21,10 @@ const translations = std.ComptimeStringMap(u8, .{
 
 fn part(alloc: std.mem.Allocator, in_part2: bool) !u32 {
     const input = @embedFile("input.txt");
-    var lines = std.mem.splitScalar(u8, input, '\n');
+    var lines = std.mem.tokenizeAny(u8, input, "\r\n");
     var sum: u32 = 0;
     while (lines.next()) |line| {
-        if (line.len != 0) {
-            sum += try keepDigits(line, alloc, in_part2);
-        }
+        sum += try keepDigits(line, alloc, in_part2);
     }
     return sum;
 }
