@@ -40,7 +40,7 @@ fn solve(input: []const u8) ![2]u32 {
     return .{ result1, result2 };
 }
 
-// Thanks to SpexGuy for its simple vision of the problem
+// Thanks to SpexGuy for its simple vision of the problem (mine was far too complex)
 pub fn main() !void {
     const input = @embedFile("input.txt");
     const parts = try solve(input);
